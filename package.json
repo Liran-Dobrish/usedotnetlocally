@@ -1,0 +1,53 @@
+{
+  "name": "usedotnet",
+  "version": "2.0.0",
+  "description": "Use .Net Core",
+  "main": "usedotnet.js",
+  "scripts": {
+    "clean": "rimraf ./dist ./out",
+    "build": "npm run clean && webpack --stats-error-details --progress --output-path ./dist --mode production && time /T",
+    "package": "npm run build && tfx extension create --manifest-globs vss-extension.json --rev-revision --output-path out",
+    "serverBuild": "node ../../make.js serverBuild --task UseDotNetV2",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Microsoft/azure-pipelines-tasks.git"
+  },
+  "keywords": [
+    "Azure",
+    "Pipelines",
+    "Tasks",
+    "DotNetCore",
+    "Use"
+  ],
+  "author": "Microsoft Corporation",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Microsoft/azure-pipelines-tasks/issues"
+  },
+  "homepage": "https://github.com/Microsoft/azure-pipelines-tasks#readme",
+  "dependencies": {
+    "@types/semver": "6.0.0",
+    "azure-pipelines-task-lib": "^4.11.0",
+    "azure-pipelines-tasks-packaging-common": "^3.273.1",
+    "azure-pipelines-tasks-utility-common": "^3.272.0",
+    "azure-pipelines-tool-lib": "^2.0.12",
+    "json5": "^2.2.3",
+    "semver": "^7.6.3",
+    "typed-rest-client": "^2.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^16.11.41",
+    "@types/node-fetch": "^2.6.13",
+    "copy-webpack-plugin": "11.0.0",
+    "esbuild": "^0.28.1",
+    "esbuild-loader": "^4.2.2",
+    "file-loader": "6.2.0",
+    "rimraf": "^5.0.1",
+    "ts-loader": "9.5.1",
+    "typescript": "^4.9.4",
+    "webpack": "^5.89.0",
+    "webpack-cli": "^5.1.4"
+  }
+}
