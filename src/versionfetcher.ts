@@ -92,7 +92,7 @@ export class DotNetCoreVersionFetcher {
 
         this.detectMachineOS();
         let downloadPackageInfoObject: VersionFilesData | undefined = undefined;
-        this.machineOsSuffixes.find((osSuffix: string) => {
+        for (const osSuffix of this.machineOsSuffixes) {
             downloadPackageInfoObject = versionInfo.getFiles().find((downloadPackageInfo: VersionFilesData) => {
                 if (downloadPackageInfo.rid &&
                     osSuffix &&
@@ -109,8 +109,11 @@ export class DotNetCoreVersionFetcher {
 
                 return false;
             });
-            return !!downloadPackageInfoObject;
-        });
+
+            if (downloadPackageInfoObject) {
+                break;
+            }
+        }
 
         if (downloadPackageInfoObject !== undefined &&
             downloadPackageInfoObject.url != undefined) {
