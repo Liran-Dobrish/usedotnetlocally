@@ -38,12 +38,14 @@
     "typed-rest-client": "^2.1.0"
   },
   "devDependencies": {
+    "@types/mocha": "^10.0.10",
     "@types/node": "^16.11.41",
     "@types/node-fetch": "^2.6.13",
     "copy-webpack-plugin": "11.0.0",
     "esbuild": "^0.28.1",
     "esbuild-loader": "^4.2.2",
     "file-loader": "6.2.0",
+    "mocha": "^11.7.6",
     "rimraf": "^5.0.1",
     "ts-loader": "9.5.1",
     "typescript": "^4.9.4",

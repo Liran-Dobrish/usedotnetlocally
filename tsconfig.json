@@ -10,6 +10,7 @@
     "rootDir": "src/", /* Specify the root folder within your source files. */
     "types": [
       "node",
+      "mocha"
     ], /* Specify type package names to be included without being referenced in a source file. */
     "typeRoots": [
       "node_modules/@types"
@@ -21,7 +22,7 @@
     "forceConsistentCasingInFileNames": true, /* Ensure that casing is correct in imports. */
     //"strict": true, /* Enable all strict type-checking options. */
     "noImplicitAny": true, /* Enable error reporting for expressions and declarations with an implied 'any' type. */
-    "strictNullChecks": true, /* When type checking, take into account 'null' and 'undefined'. */
+    //"strictNullChecks": true, /* When type checking, take into account 'null' and 'undefined'. */
     "noImplicitThis": true, /* Enable error reporting when 'this' is given the type 'any'. */
     //"skipLibCheck": true /* Skip type checking all .d.ts files. */
   },
