@@ -12,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Microsoft/azure-pipelines-tasks.git"
+    "url": "git+https://github.com/Liran-Dobrish/usedotnetlocally.git"
   },
   "keywords": [
     "Azure",
@@ -24,9 +24,9 @@
   "author": "Liran Dobrish",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Microsoft/azure-pipelines-tasks/issues"
+    "url": "https://github.com/Liran-Dobrish/usedotnetlocally/issues"
   },
-  "homepage": "https://github.com/Microsoft/azure-pipelines-tasks#readme",
+  "homepage": "https://github.com/Liran-Dobrish/usedotnetlocally#readme",
   "dependencies": {
     "@types/semver": "6.0.0",
     "azure-pipelines-task-lib": "^4.11.0",
