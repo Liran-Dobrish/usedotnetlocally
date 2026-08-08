@@ -1,7 +1,7 @@
 {
-  "name": "usedotnet",
-  "version": "2.0.0",
-  "description": "Use .Net Core",
+  "name": "usedotnetlocally",
+  "version": "1.0.0",
+  "description": "Use .Net Core on-Prem",
   "main": "usedotnet.js",
   "scripts": {
     "clean": "rimraf ./dist ./out",
@@ -21,7 +21,7 @@
     "DotNetCore",
     "Use"
   ],
-  "author": "Microsoft Corporation",
+  "author": "Liran Dobrish",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/Microsoft/azure-pipelines-tasks/issues"

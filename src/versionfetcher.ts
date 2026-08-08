@@ -125,7 +125,12 @@ export class DotNetCoreVersionFetcher {
     }
 
     private setReleasesIndex(): Promise<void> {
-        return this.httpCallbackClient.get(DotNetCoreReleasesIndexUrl)
+        let releasesIndexUrlInput = tl.getInput("localreleasesindexurl") || "";
+        let DotNetCoreIndexUrl = DotNetCoreReleasesIndexUrl
+        if (releasesIndexUrlInput != "") {
+            DotNetCoreIndexUrl = DotNetCoreReleasesIndexUrl.replaceAll("https://builds.dotnet.microsoft.com/dotnet", tl.getInput("localreleasesindexurl")!);
+        }
+        return this.httpCallbackClient.get(DotNetCoreIndexUrl)
             .then((response: httpClient.HttpClientResponse) => {
                 return response.readBody();
             })
