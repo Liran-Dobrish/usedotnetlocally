@@ -7,7 +7,7 @@
       "DOM"
     ], /* Specify a set of bundled library declaration files that describe the target runtime environment. */
     "module": "commonjs", /* Specify what module code is generated. */
-    "rootDir": "src/", /* Specify the root folder within your source files. */
+    "rootDir": "./", /* Specify the root folder within your source files. */
     "types": [
       "node",
       "mocha"

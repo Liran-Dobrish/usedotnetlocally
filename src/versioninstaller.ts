@@ -26,7 +26,7 @@ export class VersionInstaller {
      * @param versionInfo the versionInfo object with all information from the version
      * @param downloadUrl The download url of the sdk / runtime.
      */
-    public async downloadAndInstall(versionInfo: VersionInfo, downloadUrl: string): Promise<void> {
+    public async downloadAndInstall(versionInfo: VersionInfo | null, downloadUrl: string): Promise<void> {
         if (!versionInfo || !versionInfo.getVersion() || !downloadUrl || !this.isValidHttpUrl(downloadUrl)) {
             throw tl.loc("VersionCanNotBeDownloadedFromUrl", versionInfo, downloadUrl);
         }
