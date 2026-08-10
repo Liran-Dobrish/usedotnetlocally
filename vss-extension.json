@@ -1,7 +1,7 @@
 ﻿{
   "manifestVersion": 1.0,
   "id": "ado-use-dotnet-locally-opnpremise",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "name": "Use Dotnet Locally",
   "publisher": "lirandobrish",
   "description": "Use dotnet locally to build your .NET Core applications in Azure DevOps pipelines.",

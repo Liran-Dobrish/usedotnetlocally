@@ -88,7 +88,7 @@ export class DotNetCoreVersionFetcher {
     }
 
     public getDownloadUrl(versionInfo: VersionInfo): string {
-        console.log(tl.loc("GettingDownloadUrl", versionInfo.getPackageType(), versionInfo.getVersion()));
+        console.log(`Getting URL to download .NET Core ${versionInfo.getPackageType()} version: ${versionInfo.getVersion()}`);
 
         this.detectMachineOS();
         let downloadPackageInfoObject: VersionFilesData | undefined = undefined;
@@ -118,18 +118,27 @@ export class DotNetCoreVersionFetcher {
         if (downloadPackageInfoObject !== undefined &&
             downloadPackageInfoObject.url != undefined) {
             tl.debug("Got download URL for platform with rid: " + downloadPackageInfoObject.rid);
-            return downloadPackageInfoObject.url;
+            
+            let releasesIndexUrlInput = tl.getInput("localreleasesindexurl") || "";
+            let packageObjectUrl = downloadPackageInfoObject.url
+            if (releasesIndexUrlInput != "") {
+                packageObjectUrl = downloadPackageInfoObject.url.replaceAll("https://builds.dotnet.microsoft.com/dotnet", releasesIndexUrlInput);
+            }
+            return packageObjectUrl;
         }
 
-        throw tl.loc("DownloadUrlForMatchingOsNotFound", versionInfo.getPackageType(), versionInfo.getVersion(), this.machineOsSuffixes.toString());
+        throw `Download URL for .Net Core ${versionInfo.getPackageType()} version ${versionInfo.getVersion()} could not be found for the following OS platforms (rid): ${this.machineOsSuffixes.toString()}`
+        //tl.loc("DownloadUrlForMatchingOsNotFound", versionInfo.getPackageType(), versionInfo.getVersion(), this.machineOsSuffixes.toString());
     }
 
     private setReleasesIndex(): Promise<void> {
         let releasesIndexUrlInput = tl.getInput("localreleasesindexurl") || "";
         let DotNetCoreIndexUrl = DotNetCoreReleasesIndexUrl
         if (releasesIndexUrlInput != "") {
-            DotNetCoreIndexUrl = DotNetCoreReleasesIndexUrl.replaceAll("https://builds.dotnet.microsoft.com/dotnet", tl.getInput("localreleasesindexurl")!);
+            DotNetCoreIndexUrl = DotNetCoreReleasesIndexUrl.replaceAll("https://builds.dotnet.microsoft.com/dotnet", releasesIndexUrlInput);
         }
+        //console.log(DotNetCoreIndexUrl);
+
         return this.httpCallbackClient.get(DotNetCoreIndexUrl)
             .then((response: httpClient.HttpClientResponse) => {
                 return response.readBody();
@@ -274,7 +283,7 @@ export class DotNetCoreVersionFetcher {
     }
 
     private detectMachineOS(): void {
-        if (!this.machineOsSuffixes) {
+        if (this.machineOsSuffixes.length == 0) {
             let osSuffix = [];
             let scriptRunner: trm.ToolRunner;
 
