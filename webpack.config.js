@@ -21,7 +21,7 @@ module.exports = {
     target: "node",
     entry: "./src/usedotnet.ts",
     output: {
-        filename: "[name]/[name].js"
+        filename: "usedotnet.js"
     },
     resolve: {
         extensions: [".ts", ".tsx", ".js"],
@@ -40,7 +40,8 @@ module.exports = {
     plugins: [
         new CopyWebpackPlugin({
             patterns: [
-                { from: "./externals/**", to: "main" }
+                { from: "./externals/**", to: "." },
+                { from: "./task.json", to: "." }
             ]
         })
     ]

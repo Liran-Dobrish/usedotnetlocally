@@ -1,0 +1,49 @@
+﻿{
+  "manifestVersion": 1.0,
+  "id": "ado-use-dotnet-locally-opnpremise",
+  "version": "1.0.2",
+  "name": "Use Dotnet Locally",
+  "publisher": "lirandobrish",
+  "description": "Use dotnet locally to build your .NET Core applications in Azure DevOps pipelines.",
+  "_description.comment": "The below format to define artifact extensions is currently in preview and may change in future.",
+  "public": false,
+  "categories": ["Azure Pipelines"],
+  "tags": ["Artifacts", "DevOps", "Release"],
+  "targets": [
+    {
+      "id": "Microsoft.VisualStudio.Services"
+    }
+  ],
+  "demands": ["contribution/ms.vss-endpoint.externaltfs-endpoint-type"],
+  "icons": {
+    "default": "logo.png"
+  },
+  "content": {
+    "details": {
+      "path": "readme.md"
+    }
+  },
+  "files": [
+    {
+      "path": "dist"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "uri": "https://github.com/Microsoft/azure-pipelines-extensions/"
+  },
+  "branding": {
+    "color": "#5C2D91",
+    "theme": "dark"
+  },
+  "contributions": [
+    {
+      "id": "usedotnetlocally-task",
+      "type": "ms.vss-distributed-task.task",
+      "targets": ["ms.vss-distributed-task.tasks"],
+      "properties": {
+        "name": "dist"
+      }
+    }
+  ]
+}
