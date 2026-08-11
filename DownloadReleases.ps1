@@ -47,7 +47,8 @@ foreach ($reqVer in $RequestedVersions) {
 
     foreach ($sdkplatform in $reqVer.platform) {
         $sdks.files | Where-Object { $_.name.contains($sdkplatform) } | ForEach-Object {
-            curl.exe $_.url -o "$sdkDownloadPath\$($_.name)"
+            $name = $_.url.substring($_.url.LastIndexOf("/") + 1)
+            curl.exe $_.url -o "$sdkDownloadPath\$($name)"
             #Invoke-RestMethod -Uri $_.url -OutFile "$sdkDownloadPath\$($_.name)"
         }  
     }
