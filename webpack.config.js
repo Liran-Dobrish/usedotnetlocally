@@ -26,6 +26,10 @@ module.exports = {
     resolve: {
         extensions: [".ts", ".tsx", ".js"],
     },
+    externals: {
+        "azure-pipelines-task-lib": "commonjs azure-pipelines-task-lib",
+        "azure-pipelines-tasks-packaging-common": "commonjs azure-pipelines-tasks-packaging-common",
+    },
     stats: {
         warnings: false
     },
@@ -41,7 +45,11 @@ module.exports = {
         new CopyWebpackPlugin({
             patterns: [
                 { from: "./externals/**", to: "." },
-                { from: "./task.json", to: "." }
+                { from: "./task.json", to: "." },
+                { from: "./task.loc.json", to: "." },
+                { from: "./Strings/**", to: "." },
+                { from: "./node_modules/azure-pipelines-task-lib", to: "./node_modules/azure-pipelines-task-lib" },
+                { from: "./node_modules/azure-pipelines-tasks-packaging-common", to: "./node_modules/azure-pipelines-tasks-packaging-common" },
             ]
         })
     ]
