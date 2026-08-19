@@ -15,7 +15,7 @@ export class VersionInstaller {
             tl.exist(installationPath) || tl.mkdirP(installationPath);
         }
         catch (ex: any) {
-            throw tl.loc("UnableToAccessPath", installationPath, ex.message);
+            throw `Unable to access path: ${installationPath}. Error: ${ex.message}. Please make sure that agent process has access to the path.`;
         }
 
         this.packageType = packageType;
@@ -28,7 +28,7 @@ export class VersionInstaller {
      */
     public async downloadAndInstall(versionInfo: VersionInfo | null, downloadUrl: string): Promise<void> {
         if (!versionInfo || !versionInfo.getVersion() || !downloadUrl || !this.isValidHttpUrl(downloadUrl)) {
-            throw tl.loc("VersionCanNotBeDownloadedFromUrl", versionInfo, downloadUrl);
+            throw `Version: ${versionInfo?.getVersion()} cannot be downloaded from URL: ${downloadUrl}. Either the URL or version is incorrect.`;
         }
         let version = versionInfo.getVersion();
 
@@ -39,27 +39,27 @@ export class VersionInstaller {
             catch (ex) {
                 let feedFallbackUrl = "https://builds.dotnet.microsoft.com/dotnet";
                 try {
-                    tl.warning(tl.loc("CouldNotDownload", downloadUrl, ex));
+                    tl.warning(`Could not download installation package from this URL: ${downloadUrl} Error: ${ex}`);
                     var downloadPath = await this.downloadFromFallbackUrl(feedFallbackUrl, this.packageType, version, downloadUrl);
                 } catch (ex) {
-                    tl.warning(tl.loc("CouldNotDownload", feedFallbackUrl, ex));
+                    tl.warning(`Could not download installation package from this URL: ${feedFallbackUrl} Error: ${ex}`);
                     var downloadPath = await this.downloadFromFallbackUrl("https://dotnetcli.azureedge.net/dotnet", this.packageType, version, downloadUrl);
                 }
             }
 
             // Extract
-            console.log(tl.loc("ExtractingPackage", downloadPath));
+            console.log(`Extracting downloaded package ${downloadPath}.`);
             try {
                 let tempDirectory = tl.getVariable('Agent.TempDirectory') || "";
                 let extDirectory = path.join(tempDirectory, tinyGuid());
                 var extPath = tl.osType().match(/^Win/) ? await toolLib.extractZip(downloadPath, extDirectory) : await toolLib.extractTar(downloadPath);
             }
             catch (ex) {
-                throw tl.loc("FailedWhileExtractingPacakge", ex);
+                throw `Failed while extracting downloaded package with error: ${ex}`;
             }
 
             // Copy folders
-            tl.debug(tl.loc("CopyingFoldersIntoPath", this.installationPath));
+            tl.debug(`Copying all root folders into installation path: ${this.installationPath}`);
             var allRootLevelEnteriesInDir: string[] = tl.ls("", [extPath]).map(name => path.join(extPath, name));
             var directoriesTobeCopied: string[] = allRootLevelEnteriesInDir.filter(path => fs.lstatSync(path).isDirectory());
             directoriesTobeCopied.forEach((directoryPath) => {
@@ -69,7 +69,7 @@ export class VersionInstaller {
             // Copy files
             try {
                 if (this.packageType == utils.Constants.sdk && this.isLatestInstalledVersion(version)) {
-                    tl.debug(tl.loc("CopyingFilesIntoPath", this.installationPath));
+                    tl.debug(`Copying root files (such as dotnet.exe) into installation path: ${this.installationPath}`);
                     var filesToBeCopied = allRootLevelEnteriesInDir.filter(path => !fs.lstatSync(path).isDirectory());
                     filesToBeCopied.forEach((filePath) => {
                         tl.cp(filePath, this.installationPath, "-f", false);
@@ -77,16 +77,16 @@ export class VersionInstaller {
                 }
             }
             catch (ex) {
-                tl.warning(tl.loc("FailedToCopyTopLevelFiles", this.installationPath, ex));
+                tl.warning(`Failed to copy root files into installation path: ${this.installationPath}. Error: ${ex}`);
             }
 
             // Cache tool
             this.createInstallationCompleteFile(versionInfo);
 
-            console.log(tl.loc("SuccessfullyInstalled", this.packageType, version));
+            console.log(`Successfully installed .NET Core ${this.packageType} version ${version}.`);
         }
         catch (ex) {
-            throw tl.loc("FailedWhileInstallingVersionAtPath", version, this.installationPath, ex);
+            throw `Failed while installing version: ${version} at path: ${this.installationPath} with error: ${ex}`;
         }
     }
 
@@ -97,7 +97,7 @@ export class VersionInstaller {
      */
     public isVersionInstalled(version: string): boolean {
         if (!toolLib.isExplicitVersion(version)) {
-            throw tl.loc("ExplicitVersionRequired", version);
+            throw `Version: ${version} is not allowed. Versions to be installed should be of format: major.minor.patchversion. For example: 2.2.1`;
         }
 
         var isInstalled: boolean = false;
@@ -108,12 +108,12 @@ export class VersionInstaller {
             isInstalled = tl.exist(path.join(this.installationPath, utils.Constants.relativeRuntimePath, version)) && tl.exist(path.join(this.installationPath, utils.Constants.relativeRuntimePath, `${version}.complete`));
         }
 
-        isInstalled ? console.log(tl.loc("VersionFoundInCache", version)) : console.log(tl.loc("VersionNotFoundInCache", version));
+        isInstalled ? console.log(`Version: ${version} was found in cache.`) : console.log(`Version: ${version} was not found in cache.`);
         return isInstalled;
     }
 
     private createInstallationCompleteFile(versionInfo: VersionInfo): void {
-        tl.debug(tl.loc("CreatingInstallationCompeleteFile", versionInfo.getVersion(), this.packageType));
+        tl.debug(`Creating installation complete marker file for .Net core version ${versionInfo.getVersion()} and package type ${this.packageType}`);
         // always add for runtime as it is installed with sdk as well.
         var pathToVersionCompleteFile: string = "";
         if (this.packageType == utils.Constants.sdk) {
@@ -128,14 +128,14 @@ export class VersionInstaller {
             tl.writeFile(pathToVersionCompleteFile, `{ "version": "${runtimeVersion}" }`);
         }
         else if (this.packageType == utils.Constants.runtime) {
-            throw tl.loc("CannotFindRuntimeVersionForCompletingInstallation", this.packageType, versionInfo.getVersion());
+            throw `Cannot find runtime version for package type: ${this.packageType} with version: ${versionInfo.getVersion()}`;
         }
     }
 
     private isLatestInstalledVersion(version: string): boolean {
         var pathTobeChecked = this.packageType == utils.Constants.sdk ? path.join(this.installationPath, utils.Constants.relativeSdkPath) : path.join(this.installationPath, utils.Constants.relativeRuntimePath);
         if (!tl.exist(pathTobeChecked)) {
-            throw tl.loc("PathNotFoundException", pathTobeChecked);
+            throw `Path: ${pathTobeChecked} could not be located/found. Make sure the path exists.`;
         }
 
         var allEnteries: string[] = tl.ls("", [pathTobeChecked]).map(name => path.join(pathTobeChecked, name));
@@ -143,7 +143,7 @@ export class VersionInstaller {
         var isLatest: boolean = folderPaths.findIndex(folderPath => {
             try {
                 let versionFolderName = path.basename(folderPath);
-                tl.debug(tl.loc("ComparingInstalledFolderVersions", version, versionFolderName));
+                tl.debug(`Comparing if version being installed ${version} is greater than already installed version with folder name ${versionFolderName}`);
                 return utils.versionCompareFunction(versionFolderName, version) > 0;
             }
             catch (ex) {
@@ -155,7 +155,7 @@ export class VersionInstaller {
         isLatest = isLatest && filePaths.findIndex(filePath => {
             try {
                 var versionCompleteFileName = this.getVersionCompleteFileName(path.basename(filePath));
-                tl.debug(tl.loc("ComparingInstalledFileVersions", version, versionCompleteFileName));
+                tl.debug(`Comparing if version being installed ${version} is greater than already installed version with version complete file name ${versionCompleteFileName}`);
                 return utils.versionCompareFunction(versionCompleteFileName, version) > 0
             }
             catch (ex) {
@@ -163,7 +163,7 @@ export class VersionInstaller {
             }
         }) < 0;
 
-        isLatest ? tl.debug(tl.loc("VersionIsLocalLatest", version, this.installationPath)) : tl.debug(tl.loc("VersionIsNotLocalLatest", version, this.installationPath));
+        isLatest ? tl.debug(`Version: ${version} is the latest among the versions present at path: ${this.installationPath}`) : tl.debug(`Version: ${version} is not the latest among the versions present at path: ${this.installationPath}`);
         return isLatest;
     }
 
@@ -176,7 +176,7 @@ export class VersionInstaller {
             }
         }
 
-        throw tl.loc("FileNameNotCorrectCompleteFileName", name);
+        throw `File name ${name} is not a correct '.complete' file.`;
     }
 
     private async downloadFromFallbackUrl(fallBackUrl: string, packageType: string, version: string, downloadUrl: string): Promise<string> {

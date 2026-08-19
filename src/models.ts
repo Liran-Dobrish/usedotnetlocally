@@ -16,7 +16,7 @@ export class VersionInfo {
 
     constructor(versionInfoObject: { version: string, files: { name: string, hash: string, url: string, rid: string }[], 'runtime-version': string, 'vs-version': string }, packageType: string) {
         if (!versionInfoObject.version || !versionInfoObject.files) {
-            throw tl.loc("InvalidVersionObject", packageType, versionInfoObject)
+            throw `Releases.json has a release with invalid ${packageType} object: ${JSON.stringify(versionInfoObject)}`;
         }
 
         this.version = versionInfoObject.version;
@@ -27,7 +27,7 @@ export class VersionInfo {
                 this.files.push(new VersionFilesData(fileData));
             }
             catch (ex) {
-                tl.debug(tl.loc("FilesDataIsIncorrectInVersion", this.packageType, this.version, ex));
+                tl.debug(`In release ${this.packageType} for version ${this.version}, File data is incorrect (might have missing required fields, such as name, rid and url): ${ex}`);
             }
         });
 
@@ -69,7 +69,7 @@ export class VersionFilesData {
 
     constructor(versionFilesData: any) {
         if (!versionFilesData || !versionFilesData.name || !versionFilesData.url || !versionFilesData.rid) {
-            throw tl.loc("VersionFilesDataIncorrect");
+            throw `Version's files data is missing or has missing required fields.`;
         }
 
         this.name = versionFilesData.name;
@@ -82,14 +82,14 @@ export class VersionFilesData {
 export class Channel {
     constructor(channelRelease: any) {
         if (!channelRelease || !channelRelease["channel-version"] || !channelRelease["releases.json"]) {
-            throw tl.loc("InvalidChannelObject");
+            throw `Object cannot be used as Channel, required properties such as channel-version, releases.json is missing.`;
         }
 
         this.channelVersion = channelRelease["channel-version"];
         this.releasesJsonUrl = channelRelease["releases.json"];
 
         if (!channelRelease["support-phase"]) {
-            tl.debug(tl.loc("SupportPhaseNotPresentInChannel", this.channelVersion));
+            tl.debug(`support-phase is not present in the channel with channel-version ${this.channelVersion}.`);
         }
         else {
             this.supportPhase = channelRelease["support-phase"];
@@ -134,15 +134,15 @@ export class VersionParts {
                 Number.isNaN(Number.parseInt(parts[1])) || // the minor version number must be a number
                 Number.isNaN(Number.parseInt(parts[2].split(/\-|\+/)[0])) // the patch version number must be a number. (the patch version can have a '-', or a '+' because of version numbers like: 1.0.0-beta-50)
             ) {
-                throw tl.loc("OnlyExplicitVersionAllowed", version);
+                throw `Only explicit versions are accepted, such as: 2.2.301. Version: ${version} is not valid.`;
             }
 
             if (!semver.valid(version)) {
-                throw tl.loc("InvalidVersion", version);
+                throw `Invalid version specified: ${version}`;
             }
         }
         catch (ex) {
-            throw tl.loc("VersionNotAllowed", version, ex);
+            throw `Version ${version} is not allowed. Allowed version types are: majorVersion.x, majorVersion.minorVersion.x, majorVersion.minorVersion.patchVersion. More details: ${ex}`;
         }
     }
 
@@ -172,13 +172,13 @@ export class VersionParts {
                     )
                 )
             ) {
-                throw tl.loc("VersionNumberHasTheWrongFormat", version);
+                throw `The version number: ${version} doesn't have the correct format. Versions can be given in the following formats: 2.x   => Install latest in major version. 2.2.x => Install latest in major and minor version. 2.2.104 => Install exact version. Find the value of ${version} for installing SDK/Runtime, from the releases.json. The link to releases.json of that major.minor version can be found in [**releases-index file.**](https://builds.dotnet.microsoft.com/dotnet/release-metadata/releases-index.json). Like link to releases.json for 2.2 version is https://builds.dotnet.microsoft.com/dotnet/release-metadata/2.2/releases.json`;
             }
 
             new semver.Range(version);
         }
         catch (ex) {
-            throw tl.loc("VersionNotAllowed", version, ex);
+            throw `Version ${version} is not allowed. Allowed version types are: majorVersion.x, majorVersion.minorVersion.x, majorVersion.minorVersion.patchVersion. More details: ${ex}`;
         }
     }
 

@@ -9,7 +9,7 @@ import { VersionInfo } from "./models";
 
 export function versionCompareFunction(versionA: string, versionB: string): number {
     if (!toolLib.isExplicitVersion(versionA) || !toolLib.isExplicitVersion(versionB)) {
-        throw tl.loc("VersionsCanNotBeCompared", versionA, versionB);
+        throw `Versions ${versionA} and ${versionB} cannot be compared. Both versions should be explicit.`;
     }
 
     return semver.compare(versionA, versionB);
@@ -23,7 +23,7 @@ export function compareChannelVersion(channelVersionA: string, channelVersionB: 
     let channelVersionAParts = channelVersionA.split(".");
     let channelVersionBParts = channelVersionB.split(".");
     if (channelVersionAParts.length != 2 || channelVersionBParts.length != 2) {
-        throw tl.loc("ChannelVersionsNotComparable", channelVersionA, channelVersionB)
+        throw `Channel versions ${channelVersionA} and ${channelVersionB} cannot be compared. They both must have numeric major and minor versions.`;
     }
 
     let channelAMajorVersion = Number.parseInt(channelVersionAParts[0]);
@@ -32,7 +32,7 @@ export function compareChannelVersion(channelVersionA: string, channelVersionB: 
     let channelBMinorVersion = Number.parseInt(channelVersionBParts[1]);
 
     if (Number.isNaN(channelAMajorVersion) || Number.isNaN(channelAMinorVersion) || Number.isNaN(channelBMajorVersion) || Number.isNaN(channelBMinorVersion)) {
-        throw tl.loc("ChannelVersionsNotComparable", channelVersionA, channelVersionB);
+        throw `Channel versions ${channelVersionA} and ${channelVersionB} cannot be compared. They both must have numeric major and minor versions.`;
     }
 
     if (channelAMajorVersion != channelBMajorVersion) {

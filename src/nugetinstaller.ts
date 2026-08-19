@@ -8,20 +8,20 @@ export class NuGetInstaller {
         try {
             const proxy: tl.ProxyConfiguration | null = tl.getHttpProxyConfiguration();
             if (proxy) {
-                console.log(tl.loc("InstallingNuGetVersion", version));
+                console.log(`Installing NuGet version ${version}`);
                 await nuGetGetter.getNuGet(version, false, true);
                 NuGetInstaller.setProxy(proxy);
             }
         }
         catch (error: any) {
-            console.warn(tl.loc("FailureWhileInstallingNuGetVersion", version, error.message));
+            console.warn(`Failed while installing NuGet version ${version}. Error: ${error.message}`);
         }
     }
 
     private static setProxy(proxyConfig: tl.ProxyConfiguration) {
         const nugetPath = tl.which('nuget');
 
-        console.log(tl.loc("SettingUpNugetProxySettings"));
+        console.log(`Setting up proxy configuration for NuGet.`);
         // Set proxy url
         let nuget = tl.tool(nugetPath);
         nuget.arg('config');
