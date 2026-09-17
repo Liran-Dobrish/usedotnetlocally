@@ -189,7 +189,8 @@ export class DotNetCoreVersionFetcher {
     }
 
     private async getVersionFromChannel(channelInformation: Channel, versionSpec: string, vsVersionSpec: string, packageType: string, includePreviewVersions: boolean): Promise<VersionInfo | undefined> {
-        var releasesJsonUrl: string = channelInformation.releasesJsonUrl;
+        let releaseIndexUrlInput = tl.getInput("localreleasesindexurl") || "";
+        var releasesJsonUrl: string = channelInformation.releasesJsonUrl.replaceAll("https://builds.dotnet.microsoft.com/dotnet", releaseIndexUrlInput);
 
         if (releasesJsonUrl) {
             return this.httpCallbackClient.get(releasesJsonUrl)

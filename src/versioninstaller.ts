@@ -37,14 +37,15 @@ export class VersionInstaller {
                 var downloadPath = await toolLib.downloadToolWithRetries(downloadUrl)
             }
             catch (ex) {
-                let feedFallbackUrl = "https://builds.dotnet.microsoft.com/dotnet";
-                try {
-                    tl.warning(tl.loc("CouldNotDownload", downloadUrl, ex));
-                    var downloadPath = await this.downloadFromFallbackUrl(feedFallbackUrl, this.packageType, version, downloadUrl);
-                } catch (ex) {
-                    tl.warning(tl.loc("CouldNotDownload", feedFallbackUrl, ex));
-                    var downloadPath = await this.downloadFromFallbackUrl("https://dotnetcli.azureedge.net/dotnet", this.packageType, version, downloadUrl);
-                }
+                tl.setResult(tl.TaskResult.Failed, `Version ${version} could not be downloaded from ${downloadUrl}`);
+                // let feedFallbackUrl = "https://builds.dotnet.microsoft.com/dotnet";
+                // try {
+                //     tl.warning(tl.loc("CouldNotDownload", downloadUrl, ex));
+                //     var downloadPath = await this.downloadFromFallbackUrl(feedFallbackUrl, this.packageType, version, downloadUrl);
+                // } catch (ex) {
+                //     tl.warning(tl.loc("CouldNotDownload", feedFallbackUrl, ex));
+                //     var downloadPath = await this.downloadFromFallbackUrl("https://dotnetcli.azureedge.net/dotnet", this.packageType, version, downloadUrl);
+                // }
             }
 
             // Extract
