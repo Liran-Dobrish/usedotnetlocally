@@ -13,7 +13,7 @@ import { NuGetInstaller } from "./nugetinstaller";
 
 function checkVersionForDeprecationAndNotify(versionSpec: string | null): void {
     if (versionSpec != null && versionSpec.startsWith("2.1")) {
-        tl.warning(tl.loc('DepricatedVersionNetCore', versionSpec));
+        tl.warning(`NET Core version you specified ${versionSpec} is out of support and will be removed from hosted agents soon. Please refer to https://aka.ms/dotnet-core-support for more information about the .NET support policy.`);
     }
 }
 
@@ -108,7 +108,7 @@ async function isCompatibleDotnetVersionInstalled(versionSpec: string, vsVersion
 
             const satisfied = installedVersions.some(v => semver.satisfies(v, versionRange));
             if (satisfied) {
-                tl.debug(tl.loc("VersionSatisfiedByInstalledVersion", versionRange));
+                tl.debug(`An installed version satisfies the version spec '${versionRange}'. Skipping installation.`);
             } else {
                 return false;
             }
@@ -226,7 +226,7 @@ async function installDotNet(
         let versionsToInstall: VersionInfo[] = await globalJsonFetcherInstance.GetVersions();
         for (let index = 0; index < versionsToInstall.length; index++) {
             const version = versionsToInstall[index];
-            console.log(tl.loc("InstallingFromGlobalJson", version.getVersion()));
+            console.log(`Installing .NET Core SDK version ${version.getVersion()} resolved from global.json`);
             let url = versionFetcher.getDownloadUrl(version);
             if (!dotNetCoreInstaller.isVersionInstalled(version.getVersion())) {
                 await dotNetCoreInstaller.downloadAndInstall(version, url);
@@ -235,12 +235,12 @@ async function installDotNet(
             }
         }
     } else if (versionSpec) {
-        console.log(tl.loc("ToolToInstall", packageType, versionSpec));
+        console.log(`Tool to install: .NET Core ${packageType} version ${versionSpec}.`);
         let versionSpecParts = new VersionParts(versionSpec);
         let versionInfo: VersionInfo = await versionFetcher.getVersionInfo(versionSpecParts.versionSpec, vsVersionSpec, packageType, includePreviewVersions);
 
         if (!versionInfo) {
-            throw tl.loc("MatchingVersionNotFound", versionSpecParts.versionSpec);
+            throw `No matching ${packageType} version could be found for specified version: ${versionSpecParts.versionSpec}. Kindly note the preview versions are only considered in latest version searches if Include Preview Versions checkbox is checked.`;
         }
         if (!dotNetCoreInstaller.isVersionInstalled(versionInfo.getVersion())) {
             await dotNetCoreInstaller.downloadAndInstall(versionInfo, versionFetcher.getDownloadUrl(versionInfo));
@@ -261,20 +261,21 @@ function addDotNetCoreToolPath() {
             globalToolPath = path.join(process.env.HOME!, Constants.relativeGlobalToolPath);
         }
 
-        console.log(tl.loc("PrependGlobalToolPath"));
+        console.log(`Creating global tool path and pre-pending to PATH.`);
         tl.mkdirP(globalToolPath);
         tl.prependPath(globalToolPath);
     } catch (error: any) {
         //nop
-        console.log(tl.loc("ErrorWhileSettingDotNetToolPath", error.message));
+        console.log(`Failed while prepending .Net Core Tool path to PATH environment variable. Error: ${error.message}`);
     }
 }
 
-const taskManifestPath = path.join(__dirname, "task.json");
-const packagingCommonManifestPath = path.join(__dirname, "node_modules/azure-pipelines-tasks-packaging-common/module.json");
-tl.debug("Setting resource path to " + taskManifestPath);
-tl.setResourcePath(taskManifestPath);
-tl.setResourcePath(packagingCommonManifestPath);
+// const taskManifestPath = path.join(__dirname, "task.json");
+// const packagingCommonManifestPath = path.join(__dirname, "azure-pipelines-tasks-packaging-common/module.json");
+// tl.debug("Setting resource path to " + taskManifestPath);
+// tl.setResourcePath(taskManifestPath);
+// tl.debug("Setting resource path to " + packagingCommonManifestPath);
+// tl.setResourcePath(packagingCommonManifestPath);
 
 run()
     .then(() => tl.setResult(tl.TaskResult.Succeeded, ""))

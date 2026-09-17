@@ -51,11 +51,11 @@ export class globalJsonFetcher {
                             channelSpec = resolvedSpec;
                         }
                     }
-                    console.log(tl.loc("ApplyingRollForwardPolicy", entry.rollForward, entry.version, matchingSpec || channelSpec));
+                    console.log(`Applying rollForward policy '${entry.rollForward}' to version '${entry.version}', resolved version spec: '${matchingSpec || channelSpec}'`);
                 }
 
                 var versionInfo = await versionFetcher.getVersionInfo(channelSpec, "", "sdk", false, matchingSpec);
-                console.log(tl.loc("ResolvedVersionFromGlobalJson", versionInfo.getVersion(), entry.version, entry.rollForward || "disable"));
+                console.log(`Resolved SDK version '${versionInfo.getVersion()}' from global.json (original version: '${entry.version}', rollForward: '${entry.rollForward || "disable"}')`);
                 versionInformation.push(versionInfo);
             }
         }
@@ -66,13 +66,13 @@ export class globalJsonFetcher {
     public getGlobalJsonVersions(): Array<GlobalJsonVersion | null | undefined> {
         let filePathsToGlobalJson = tl.findMatch(this.workingDirectory, "**/global.json");
         if (filePathsToGlobalJson == null || filePathsToGlobalJson.length == 0) {
-            throw tl.loc("FailedToFindGlobalJson", this.workingDirectory);
+            throw `Failed to find global.json at and inside path: ${this.workingDirectory}`;
         }
 
         return filePathsToGlobalJson.map(path => {
             var content = this.readGlobalJson(path);
             if (content != null) {
-                console.log(tl.loc("GlobalJsonSdkVersion", content.sdk!.version, path));
+                console.log(`SDK version: ${content.sdk!.version} is specified by global.json at path: ${path}`);
                 return {
                     version: content.sdk!.version,
                     rollForward: content.sdk?.rollForward
@@ -86,29 +86,29 @@ export class globalJsonFetcher {
 
     private readGlobalJson(path: string): GlobalJson | null {
         let globalJson: GlobalJson | null = null;
-        console.log(tl.loc("GlobalJsonFound", path));
+        console.log(`Found a global.json at path: ${path}`);
         try {
             let fileContent = fileSystem.readFileSync(path);
             // Since here is a buffer, we need to check length property to determine if it is empty.
             if (!fileContent.length) {
                 // do not throw if globa.json is empty, task need not install any version in such case.
-                tl.warning(tl.loc("GlobalJsonIsEmpty", path));
+                tl.warning(`global.json at path: ${path} is empty. No version is specified.`);
                 return null;
             }
 
             globalJson = (JSON5.parse(fileContent.toString())) as GlobalJson;
         } catch (error) {
             // we throw if the global.json is invalid
-            throw tl.loc("FailedToReadGlobalJson", path, error); // We don't throw if a global.json is invalid.
+            throw `The global.json at path: '${path}' has the wrong format. For information about global.json, visit here: https://docs.microsoft.com/en-us/dotnet/core/tools/global-json. Error while trying to read: ${error}`; // We don't throw if a global.json is invalid.
         }
 
         if (globalJson == null || globalJson.sdk == null || globalJson.sdk.version == null) {
-            tl.warning(tl.loc("FailedToReadGlobalJson", path));
+            tl.warning(`The global.json at path: '${path}' has the wrong format. For information about global.json, visit here: https://docs.microsoft.com/en-us/dotnet/core/tools/global-json. Error while trying to read: Failed to read global.json at path: ${path}`);
             return null;
         }
 
         if (globalJson.sdk.rollForward && !validRollForwardPolicies.includes(globalJson.sdk.rollForward)) {
-            tl.warning(tl.loc("InvalidRollForwardPolicy", globalJson.sdk.rollForward, path));
+            tl.warning(`Invalid rollForward policy '${globalJson.sdk.rollForward}' in global.json at path: '${path}'. Supported values are: disable, patch, feature, minor, major, latestPatch, latestFeature, latestMinor, latestMajor. The rollForward policy will be ignored.`);
             globalJson.sdk.rollForward = undefined;
         }
 

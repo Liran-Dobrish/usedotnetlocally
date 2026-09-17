@@ -6,7 +6,7 @@
   "scripts": {
     "clean": "rimraf ./dist ./out",
     "build": "npm run clean && webpack --stats-error-details --progress --output-path ./dist --mode production && time /T",
-    "package": "npm run build && tfx extension create --manifest-globs vss-extension.json --rev-revision --output-path out",
+    "package": "npm run build && tfx extension create --manifest-globs vss-extension.json --rev-version --output-path out",
     "serverBuild": "node ../../make.js serverBuild --task UseDotNetV2",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
